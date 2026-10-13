@@ -69,7 +69,7 @@ npm run dev     # http://localhost:5173
 |---|---|
 | [`SKILL.MD`](SKILL.MD) | 서비스 기획 명세 (사용자 시나리오·데이터 모델·요구사항) |
 | [`app/README.md`](app/README.md) | 개발·Firebase 연결·배포 상세 가이드 |
-| [`GMI.MD`](GMI.MD) | Windows/PowerShell 환경의 커밋·푸시 문제 해결 기록 |
+| [`GIT.MD`](GIT.MD) | Windows/PowerShell 환경의 커밋·푸시 문제 해결 기록 |
 | [`firestore.rules`](app/firestore.rules) | Firestore 보안 규칙 |
 
 ---

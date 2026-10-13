@@ -110,6 +110,27 @@ node -e "... new RegExp('(?<![가-힣A-Za-z0-9])' + tok + '(?![가-힣A-Za-z0-9]
 
 ---
 
+## 8. 푸시 시 사용자명 프롬프트가 뜨고 멈춤
+
+**증상**: 이전에는 되던 `git push`가 갑자기 아무 응답 없이 오래 대기하다 타임아웃. `GCM_INTERACTIVE=never` 상태로 실행하면 즉시 실패:
+```
+fatal: Cannot prompt because user interactivity has been disabled.
+fatal: could not read Username for 'https://github.com': terminal prompts disabled
+```
+
+**원인**: 시스템 자격증명 헬퍼(`credential.helper=manager`, Git Credential Manager)가 저장된 자격증명을 조용히 제공하지 못하는 상태. gh에 두 계정(Parkdongbae / parkdongbae-afk)이 로그인돼 있어 GCM이 어느 계정용인지 판단하지 못하고 대화형 프롬프트로 넘어간 것이 원인으로 추정.
+
+**해결 (검증됨)**: gh CLI 자격증명을 git에 연결 — gh의 활성 계정 토큰으로 프롬프트 없이 인증됨.
+```powershell
+gh auth status        # 활성 계정이 대상 저장소 소유자와 일치하는지 먼저 확인
+gh auth setup-git     # 전역 설정: credential.https://github.com.helper = !gh.exe auth git-credential
+git push              # 프롬프트 없이 성공
+```
+
+**참고**: 이 설정은 전역(git config --global)에 저장되어 이후 모든 푸시에 적용된다. 계정을 전환할 때는 `gh auth switch`로 활성 계정을 바꾸면 된다.
+
+---
+
 ## 최종 확인 절차 (재사용용)
 
 푸시 전 개인정보 유출 검사의 실제 동작 순서:
