@@ -1,0 +1,15 @@
+# 개인정보 포함 원본 - 절대 커밋 금지
+talk.txt
+app/leak-report.txt
+
+# 추출 중간 산출물 (최종 익명화 시드는 app/src/data/seed.json 만 포함)
+seed/
+
+# QA/도구 산출물
+.playwright-mcp/
+qa-*.png
+.omo/
+
+# OS
+Thumbs.db
+Desktop.ini
