@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // problems: 읽기 공개, 관리자만 쓰기
+    match /problems/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // templates: 읽기 공개, 관리자만 쓰기
+    match /templates/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // equipments: 읽기 공개, 관리자만 쓰기
+    match /equipments/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // users: 본인 문서만 생성/수정, 읽기는 로그인 사용자(본인 또는 관리자)
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.uid == uid;
+      allow delete: if false;
+    }
+
+    // posts: 읽기 공개, 로그인 사용자면 질문 작성과 답변 추가 가능.
+    // MVP 단계에서는 answers를 배열로 관리하므로 update는 로그인 사용자에게 허용한다.
+    // (답변을 서브컬렉션으로 전환하면 update를 작성자/관리자로 강화 권장)
+    match /posts/{id} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if signedIn();
+      allow delete: if signedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
+    }
+  }
+}
